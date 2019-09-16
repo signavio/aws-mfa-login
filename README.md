@@ -10,7 +10,7 @@ go get -u github.com/signavio/aws-mfa-login
 ```
 or download from releases
 ```yaml
-curl -L https://github.com/signavio/aws-mfa-login/releases/download/v0.3.1/aws-mfa-login_linux_amd64.gz -o aws-mfa-login.gz
+curl -L https://github.com/signavio/aws-mfa-login/releases/latest/download/aws-mfa-login_linux_amd64.gz -o aws-mfa-login.gz
 gunzip aws-mfa-login.gz && chmod +x aws-mfa-login && sudo mv aws-mfa-login /usr/local/bin/aws-mfa-login
 ```
 
