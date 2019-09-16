@@ -16,58 +16,88 @@ import (
 	"time"
 )
 
-func UpdateSessionCredentials(sourceProfile string) {
-	PrintConfig()
+type CredUpdater struct {
+	sourceProfile      string
+	destinationProfile string
+	iamClient          *iam.IAM
+	stsClient          *sts.STS
+}
+
+func UpdateSessionCredentials() {
+	updater := &CredUpdater{
+		sourceProfile:      viper.GetString("source"),
+		destinationProfile: viper.GetString("destination"),
+	}
+	updater.init()
+	username := updater.getUsername()
+	serial := updater.getMfaSerial(username)
+	code := updater.readCode()
+	token := updater.getSessionToken(serial, code)
+	updater.updateAwsConfig(token)
+}
+
+func (updater *CredUpdater) init() {
+	fmt.Printf("got config %v", updater)
 	config := &aws.Config{
-		Credentials: credentials.NewSharedCredentials("", sourceProfile),
+		Credentials: credentials.NewSharedCredentials("", updater.sourceProfile),
 	}
 	session, err := session.NewSession(config)
 	if err != nil {
 		log.Fatal(err)
 	}
-	iamClient := iam.New(session)
-	stsClient := sts.New(session)
+	updater.iamClient = iam.New(session)
+	updater.stsClient = sts.New(session)
+}
 
-	callerOutput, err := stsClient.GetCallerIdentity(&sts.GetCallerIdentityInput{})
+func (updater *CredUpdater) getUsername() string {
+	callerOutput, err := updater.stsClient.GetCallerIdentity(&sts.GetCallerIdentityInput{})
 	if err != nil {
 		log.Fatal(err)
 	}
-	username := parseUsername(callerOutput)
+	return parseUsername(callerOutput)
+}
 
+func (updater *CredUpdater) getMfaSerial(username string) string {
 	var mfaId string
 	deviceInput := &iam.ListMFADevicesInput{UserName: aws.String(username)}
-	devices, err := iamClient.ListMFADevices(deviceInput)
-
+	devices, err := updater.iamClient.ListMFADevices(deviceInput)
 	if err != nil {
 		log.Fatal(err)
 	}
 	if len(devices.MFADevices) == 0 {
-		log.Fatal("user has no MFA Device activated", )
+		log.Fatal("user has no MFA Device activated")
 	} else {
 		mfaId = *devices.MFADevices[0].SerialNumber
 		fmt.Printf("detected MFA device with serial number %s\n", mfaId)
 	}
+	return mfaId
+}
 
-	// get mfa code from user
+func (updater *CredUpdater) readCode() string {
 	fmt.Print("enter 6-digit MFA code: ")
 	userInput := bufio.NewReader(os.Stdin)
 	in, _, err := userInput.ReadLine()
-	code := string(in)
-
-	// get session token
-	tokenInput := &sts.GetSessionTokenInput{
-		DurationSeconds: nil,
-		SerialNumber:    &mfaId,
-		TokenCode:       &code,
-	}
-	token, err := stsClient.GetSessionToken(tokenInput)
 	if err != nil {
 		log.Fatal(err)
 	}
+	return string(in)
+}
 
-	fmt.Println(token)
+func (updater *CredUpdater) getSessionToken(serial string, code string) *sts.GetSessionTokenOutput {
+	tokenInput := &sts.GetSessionTokenInput{
+		DurationSeconds: nil,
+		SerialNumber:    &serial,
+		TokenCode:       &code,
+	}
+	token, err := updater.stsClient.GetSessionToken(tokenInput)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("got token", token)
+	return token
+}
 
-	// update aws config
+func (updater *CredUpdater) updateAwsConfig(token *sts.GetSessionTokenOutput) {
 	home, err := os.UserHomeDir()
 	awsFilePath := fmt.Sprintf("%s/.aws/credentials", home)
 	if err != nil {
@@ -77,7 +107,7 @@ func UpdateSessionCredentials(sourceProfile string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	section, err := awsFile.NewSection(viper.GetString("profile"))
+	section, err := awsFile.NewSection(viper.GetString("destination"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -99,9 +129,9 @@ Access will be valid for %d hours. You can now your profile.
 export AWS_PROFILE=%s
 
 `,
-		viper.GetString("profile"),
+		viper.GetString("destination"),
 		expires,
-		viper.GetString("profile"),
+		viper.GetString("destination"),
 	)
 }
 
@@ -113,12 +143,4 @@ func parseUsername(input *sts.GetCallerIdentityOutput) string {
 		log.Fatalf("Could not detect user name from %v", input)
 	}
 	return arr[1]
-}
-
-func PrintConfig() {
-	fmt.Println("Current Config\n#####")
-	for _, key := range viper.AllKeys() {
-		fmt.Printf("%v: %v\n", key, viper.Get(key))
-	}
-	fmt.Print("\n")
 }
