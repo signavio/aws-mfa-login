@@ -37,7 +37,6 @@ func UpdateSessionCredentials() {
 }
 
 func (updater *CredUpdater) init() {
-	fmt.Printf("got config %v", updater)
 	config := &aws.Config{
 		Credentials: credentials.NewSharedCredentials("", updater.sourceProfile),
 	}
@@ -93,7 +92,6 @@ func (updater *CredUpdater) getSessionToken(serial string, code string) *sts.Get
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("got token", token)
 	return token
 }
 
