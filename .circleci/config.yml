@@ -24,6 +24,7 @@ jobs:
           root: .
           paths:
             - dist/*
+
   publish:
     docker:
       - image: circleci/golang:1.12
