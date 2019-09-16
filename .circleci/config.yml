@@ -60,4 +60,4 @@ workflows:
             - build
           filters:
             branches:
-              only: add-pipeline
+              only: master
