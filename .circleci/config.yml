@@ -19,11 +19,18 @@ jobs:
             go get .
             gox -os="linux darwin windows" -arch="amd64" -output="dist/aws-mfa-login_{{.OS}}_{{.Arch}}"
             cd dist/ && gzip *
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist/*
   publish:
     docker:
       - image: circleci/golang:1.12
     working_directory: /go/src/github.com/signavio/aws-mfa-login
     steps:
+      - checkout
+      - attach_workspace:
+          at: .
       - run:
           name: install-tools
           command: |
