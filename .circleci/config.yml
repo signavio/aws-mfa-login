@@ -2,10 +2,11 @@ version: 2.1
 
 commands:
   install-tools:
-    command: |
-      go get -u github.com/mitchellh/gox
-      go get -u github.com/tcnksm/ghr
-      go get -u github.com/stevenmatthewt/semantics
+    steps:
+      - run: |
+          go get -u github.com/mitchellh/gox
+          go get -u github.com/tcnksm/ghr
+          go get -u github.com/stevenmatthewt/semantics
 
 jobs:
   build:
@@ -15,7 +16,6 @@ jobs:
     steps:
       - run: git config --global url.ssh://git@github.com/signavio.insteadOf https://github.com/signavio
       - checkout
-      - install-tools
       - run:
           name: cross compile
           command: |
@@ -40,10 +40,10 @@ jobs:
             fi
 
 workflows:
-  build-deploy:
+  build-publish:
     jobs:
       - build
-      - deploy:
+      - publish:
           requires:
             - build
           filters:
