@@ -38,6 +38,9 @@ jobs:
           command: |
             go get -u github.com/tcnksm/ghr
             go get -u github.com/stevenmatthewt/semantics
+      - add_ssh_keys:
+          fingerprints:
+            - "f8:92:a9:8a:62:4f:4a:f2:3a:52:aa:b9:7e:05:72:b6"
       - run:
           name: create release
           command: |
