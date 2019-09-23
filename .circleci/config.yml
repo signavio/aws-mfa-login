@@ -14,6 +14,10 @@ jobs:
           name: install-tools
           command: go get -u github.com/mitchellh/gox
       - run:
+          name: test
+          command: |
+            go test ./action
+      - run:
           name: cross compile
           command: |
             go get -u github.com/mitchellh/gox
