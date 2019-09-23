@@ -53,7 +53,11 @@ func (updater *CredUpdater) getUsername() string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return parseUsername(callerOutput)
+	username, err := ParseUsername(callerOutput)
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+	return username
 }
 
 func (updater *CredUpdater) getMfaSerial(username string) string {
@@ -133,12 +137,16 @@ export AWS_PROFILE=%s
 	)
 }
 
-func parseUsername(input *sts.GetCallerIdentityOutput) string {
+func ParseUsername(input *sts.GetCallerIdentityOutput) (string, error) {
 	var arn string
 	arn = *input.Arn
+	if !strings.Contains(arn, "/") {
+		return "", &ArnParseException{"arn does not have expected format arn:aws:iam::123456:user/someuser"}
+	}
 	arr := strings.Split(arn, "/")
 	if len(arr) == 0 || arr[1] == "" {
-		log.Fatalf("Could not detect user name from %v", input)
+		msg := fmt.Sprintf("Could not detect user name from %v", input)
+		return "", &ArnParseException{msg}
 	}
-	return arr[1]
+	return arr[1], nil
 }
