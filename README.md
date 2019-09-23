@@ -67,7 +67,7 @@ aws-mfa-login completion -h
 # Development
 
 ## Versioning
-In order to increase version your commit message (or squash merge) should start with `major`, `minor` or `patch`.
+In order to increase version your commit message (or squash merge) should start with `major:`, `minor:` or `patch:`.
 See https://github.com/stevenmatthewt/semantics#how-it-works
 The CI will publish artifacts to releases page and increment version.
 
