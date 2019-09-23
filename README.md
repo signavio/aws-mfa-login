@@ -6,7 +6,7 @@ Those credentials will be valid for 12 hours by default.
 ## Getting started
 Install executable with golang
 ```bash
-go get -u github.com/signavio/aws-mfa-login
+go get [-u] github.com/signavio/aws-mfa-login
 ```
 or download from releases
 ```yaml
@@ -53,11 +53,29 @@ Access will be valid for 11 hours. You can now your profile.
 export AWS_PROFILE=suite-mfa
 ```
 
+## Autocompletion
+
+```console
+aws-mfa-login completion -h
+> To enable autocompletion one-time run
+> source <(aws-mfa-login completion)
+> To enable autocompletion for all terminal sessions add this your bashrc
+> # ~/.bashrc or ~/.profile
+> source <(aws-mfa-login completion)
+```
+
+# Development
+
+## Versioning
+In order to increase version your commit message (or squash merge) should start with `major`, `minor` or `patch`.
+See https://github.com/stevenmatthewt/semantics#how-it-works
+The CI will publish artifacts to releases page and increment version.
+
 ## Install from sources
 
 ```console
 export GO111MODULE=on
-go get .
+go build .
 go install .
 aws-mfa-login
 ```
