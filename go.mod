@@ -9,5 +9,6 @@ require (
 	github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337 // indirect
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/viper v1.4.0
+	github.com/stretchr/testify v1.2.2
 	gopkg.in/ini.v1 v1.46.0 // indirect
 )
