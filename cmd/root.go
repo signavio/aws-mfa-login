@@ -17,6 +17,7 @@ var rootCmd = &cobra.Command{
 	Short: "aws login with mfa",
 	Long:  "CLI tool to update your temporary AWS credentials ",
 	Run: func(cmd *cobra.Command, args []string) {
+		PrintConfig()
 		action.UpdateSessionCredentials()
 	},
 }
@@ -46,7 +47,6 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatal(err)
 	}
-	printConfig()
 }
 
 func Execute() {
@@ -55,7 +55,7 @@ func Execute() {
 	}
 }
 
-func printConfig() {
+func PrintConfig() {
 	fmt.Println("Current Config located in ~/.aws-mfa.yaml\n#####")
 	for _, key := range viper.AllKeys() {
 		fmt.Printf("%v: %v\n", key, viper.Get(key))
