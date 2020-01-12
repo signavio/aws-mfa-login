@@ -97,7 +97,7 @@ func Write(cluster *ConfigCluster, filePath string) (State, error) {
 	if err != nil {
 		return Error, err
 	}
-	_, err = section.NewKey("source_profile", viper.GetString("source"))
+	_, err = section.NewKey("source_profile", viper.GetString("destination"))
 	if err != nil {
 		return Error, err
 	}
