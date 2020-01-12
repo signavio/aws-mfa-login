@@ -67,6 +67,10 @@ func TestWrite(t *testing.T) {
 		log.Fatal(err)
 	}
 	defer func() {
+		err = file.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
 		err = os.Remove(file.Name())
 		if err != nil {
 			log.Fatal(err)
