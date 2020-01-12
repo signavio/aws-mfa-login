@@ -58,7 +58,7 @@ func TestWrite(t *testing.T) {
 		},
 	}
 	viper.Set("clusters", conf)
-	viper.Set("source", "test-mfa")
+	viper.Set("destination", "test-mfa")
 
 	PrintClusterConfig()
 
@@ -100,7 +100,7 @@ func TestWrite(t *testing.T) {
 	// one section DEFAULT will be added by default
 	assert.ElementsMatch(t, result.SectionStrings(), []string{"DEFAULT", conf[0].Alias, conf[1].Alias})
 	assert.Equal(t, foundRole.Value(), getArn(conf[0].AccountID, conf[0].Role))
-	assert.Equal(t, foundProfile.Value(), viper.GetString("source"))
+	assert.Equal(t, foundProfile.Value(), viper.GetString("destination"))
 	assert.Equal(t, states[Created], 2)
 	assert.Equal(t, states[Updated], 0)
 	assert.Equal(t, states[Deleted], 0)
@@ -138,7 +138,7 @@ func TestWrite(t *testing.T) {
 
 	assert.Len(t, result.SectionStrings(), 3)
 	assert.Equal(t, foundRole.Value(), getArn(modified.AccountID, modified.Role))
-	assert.Equal(t, foundProfile.Value(), viper.GetString("source"))
+	assert.Equal(t, foundProfile.Value(), viper.GetString("destination"))
 	assert.Equal(t, state, Updated)
 
 	printResultFile(file)
