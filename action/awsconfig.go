@@ -27,6 +27,7 @@ type ConfigCluster struct {
 	Alias     string `yaml:"alias"`
 	AccountID string `yaml:"accountId"`
 	Role      string `yaml:"role"`
+	Region    string `yaml:"region"`
 }
 
 func GetClusterConfig() []ConfigCluster {
