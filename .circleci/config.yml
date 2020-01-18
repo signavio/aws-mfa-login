@@ -19,7 +19,7 @@ jobs:
             go test ./action -v -race -coverprofile=coverage.txt -covermode=atomic
       - run:
           name: upload code coverage
-          comand: |
+          command: |
             bash <(curl -s https://codecov.io/bash)
       - run:
           name: cross compile
