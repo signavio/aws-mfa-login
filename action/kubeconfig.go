@@ -14,7 +14,7 @@ import (
 	"regexp"
 )
 
-const REQUIRED_MIN_AWS_VERSION = "1.16.308"
+const RequiredMinAwsVersion = "1.16.308"
 
 func runCommand(command string, args []string) string {
 	cmd := exec.Command(command, args...)
@@ -27,7 +27,10 @@ func runCommand(command string, args []string) string {
 }
 
 func ListClusters() {
-	for _, cluster := range GetClusterConfig() {
+	clusters := &Clusters{}
+	clusters.InitConfig()
+
+	for _, cluster := range clusters.ClusterConfigs {
 		fmt.Println("####")
 		fmt.Printf("Cluster: %s\nRegion: %s\n", cluster.Alias, cluster.Region)
 		runCommand("aws", []string{
@@ -41,7 +44,11 @@ func ListClusters() {
 }
 
 func SetupClusters() {
-	for _, cluster := range GetClusterConfig() {
+
+	clusters := &Clusters{}
+	clusters.InitConfig()
+
+	for _, cluster := range clusters.ClusterConfigs {
 		runCommand("aws", []string{
 			"eks",
 			"update-kubeconfig",
@@ -51,6 +58,9 @@ func SetupClusters() {
 			"--name", cluster.Name,
 		})
 	}
+	if len(clusters.ClusterConfigs) > 0 {
+		fmt.Printf("\nyou can switch to cluster e.g. with:\nkubectl config use-context %s\n", clusters.ClusterConfigs[0].Alias)
+	}
 }
 
 func CheckRequiredAwsVersion(versionString string) (bool, error) {
@@ -59,11 +69,11 @@ func CheckRequiredAwsVersion(versionString string) (bool, error) {
 		//log.Fatalf("could not parse incoming version: %s", versionString)
 		return false, err
 	}
-	minmumVersion, _ := semver.Make(REQUIRED_MIN_AWS_VERSION)
+	minmumVersion, _ := semver.Make(RequiredMinAwsVersion)
 	if version.Compare(minmumVersion) < 0 {
-		return false, fmt.Errorf("aws cli version must be greater than %s and you have %s\n\n", REQUIRED_MIN_AWS_VERSION, versionString)
+		return false, fmt.Errorf("aws cli version must be greater than %s and you have %s\n\n", RequiredMinAwsVersion, versionString)
 	}
-	fmt.Printf("Version is greater than %s\n", REQUIRED_MIN_AWS_VERSION)
+	fmt.Printf("Version is greater than %s\n", RequiredMinAwsVersion)
 	return true, nil
 }
 

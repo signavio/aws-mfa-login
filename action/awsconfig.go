@@ -18,11 +18,12 @@ const (
 	Error
 )
 
-type Config struct {
-	Clusters []ConfigCluster
+type Clusters struct {
+	ClusterConfigs []ClusterConfig
+	states         map[State]int
 }
 
-type ConfigCluster struct {
+type ClusterConfig struct {
 	Name      string `yaml:"name"`
 	Alias     string `yaml:"alias"`
 	AccountID string `yaml:"accountId"`
@@ -30,70 +31,58 @@ type ConfigCluster struct {
 	Region    string `yaml:"region"`
 }
 
-func GetClusterConfig() []ConfigCluster {
-	var conf []ConfigCluster
+func (clusters *Clusters) InitConfig() {
+	var conf []ClusterConfig
 	err := viper.UnmarshalKey("clusters", &conf)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return conf
+	clusters.ClusterConfigs = conf
 }
 
-func PrintClusterConfig() {
-	clusterConfig := viper.Get("clusters")
-	yamlCluster, err := yaml.Marshal(clusterConfig)
+func (clusters *Clusters) PrintConfig() {
+	yamlCluster, err := yaml.Marshal(clusters.ClusterConfigs)
 	if err != nil {
 		log.Fatalf("unable to marshal config to YAML: %v", err)
 	}
 	fmt.Printf("%s#####\n", yamlCluster)
-	fmt.Printf("%d, %d, %d", Created, Updated, Deleted)
 }
 
-func PrintConfigWithoutClusterConfig() {
-	fmt.Println("Current Config located in ~/.aws-mfa.yaml\n#####")
-	for _, key := range viper.AllKeys() {
-		if key != "clusters" {
-			fmt.Printf("%v: %v\n", key, viper.Get(key))
-		}
-	}
-	fmt.Print("#####\n")
-}
-
-func WriteAll(filePath string) (map[State]int, error) {
+func (clusters *Clusters) WriteAll(filePath string) error {
 	if filePath == "" {
 		filePath = getAwsConfigFilePath()
 	}
-	states := make(map[State]int)
-	for _, cluster := range GetClusterConfig() {
-		state, err := Write(&cluster, filePath)
+	clusters.states = make(map[State]int)
+	for _, cluster := range clusters.ClusterConfigs {
+		state, err := cluster.Write(filePath)
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
-		states[state] += 1
+		clusters.states[state] += 1
 	}
 	fmt.Printf("Updated aws credentials in %s\n", filePath)
-	fmt.Printf("%d sections updated and %d sections created\n\n", states[Updated], states[Created])
-	return states, nil
+	fmt.Printf("%d sections updated and %d sections created\n\n", clusters.states[Updated], clusters.states[Created])
+	return nil
 }
 
-func Write(cluster *ConfigCluster, filePath string) (State, error) {
+func (clusterConfig *ClusterConfig) Write(filePath string) (State, error) {
 	file, err := ini.Load(filePath)
 	if err != nil {
 		return Error, err
 	}
 	state := Error
-	_, err = file.GetSection(cluster.Alias)
+	_, err = file.GetSection(clusterConfig.Alias)
 	if err == nil {
 		state = Updated
 	} else {
 		state = Created
 	}
-	section, err := file.NewSection(cluster.Alias)
+	section, err := file.NewSection(clusterConfig.Alias)
 	if err != nil {
 		return Error, err
 	}
 
-	arn := fmt.Sprintf("arn:aws:iam::%s:role/%s", cluster.AccountID, cluster.Role)
+	arn := fmt.Sprintf("arn:aws:iam::%s:role/%s", clusterConfig.AccountID, clusterConfig.Role)
 	_, err = section.NewKey("role_arn", arn)
 	if err != nil {
 		return Error, err
@@ -106,6 +95,13 @@ func Write(cluster *ConfigCluster, filePath string) (State, error) {
 	return state, file.SaveTo(filePath)
 }
 
+func PrintAwsConfig(filePath string) {
+	if filePath == "" {
+		filePath = getAwsConfigFilePath()
+	}
+	PrintFile(filePath)
+}
+
 func getAwsConfigFilePath() string {
 	home, err := os.UserHomeDir()
 	path := fmt.Sprintf("%s/.aws/credentials", home)
@@ -114,4 +110,14 @@ func getAwsConfigFilePath() string {
 		return ""
 	}
 	return path
+}
+
+func PrintConfigWithoutClusterConfig() {
+	fmt.Println("Current Config located in ~/.aws-mfa.yaml\n#####")
+	for _, key := range viper.AllKeys() {
+		if key != "clusters" {
+			fmt.Printf("%v: %v\n", key, viper.Get(key))
+		}
+	}
+	fmt.Print("#####\n")
 }

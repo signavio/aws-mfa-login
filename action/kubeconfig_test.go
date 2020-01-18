@@ -6,10 +6,6 @@ import (
 	"testing"
 )
 
-func TestListClusters(t *testing.T) {
-	ListClusters()
-}
-
 func TestParseAwsVersion(t *testing.T) {
 
 	var tests = map[string]struct {
@@ -40,7 +36,7 @@ func TestCheckRequiredAwsVersion(t *testing.T) {
 		"no-semver-version": {"1.2", false, true},
 	}
 	for _, test := range tests {
-		fmt.Printf("compare %s against %s", test.input, REQUIRED_MIN_AWS_VERSION)
+		fmt.Printf("compare %s against %s\n", test.input, RequiredMinAwsVersion)
 		isValid, err := CheckRequiredAwsVersion(test.input)
 		if err != nil {
 			fmt.Println(err)

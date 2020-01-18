@@ -13,7 +13,7 @@ var Name string
 var Destination string
 
 var (
-	conf *action.Config
+	conf *action.Clusters
 )
 
 var rootCmd = &cobra.Command{
@@ -57,7 +57,7 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatal(err)
 	}
-	conf = &action.Config{}
+	conf = &action.Clusters{}
 	err := viper.Unmarshal(conf)
 	if err != nil {
 		log.Fatalf("unable to decode into config struct, %v", err)

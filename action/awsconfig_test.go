@@ -11,39 +11,8 @@ import (
 	"testing"
 )
 
-func printResultFile(f *os.File) {
-	file, err := os.Open(f.Name())
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	defer func() {
-		err := file.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}()
-
-	fileinfo, err := file.Stat()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	filesize := fileinfo.Size()
-	buffer := make([]byte, filesize)
-
-	_, err = file.Read(buffer)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Println(string(buffer))
-
-}
-
 func TestWrite(t *testing.T) {
-	conf := []ConfigCluster{
+	conf := []ClusterConfig{
 		{
 			Name:      "testname",
 			Alias:     "testalias",
@@ -60,7 +29,9 @@ func TestWrite(t *testing.T) {
 	viper.Set("clusters", conf)
 	viper.Set("destination", "test-mfa")
 
-	PrintClusterConfig()
+	clusters := &Clusters{}
+	clusters.InitConfig()
+	clusters.PrintConfig()
 
 	file, err := ioutil.TempFile(os.TempDir(), "aws-test")
 	if err != nil {
@@ -77,12 +48,17 @@ func TestWrite(t *testing.T) {
 		}
 	}()
 
-	states, err := WriteAll(file.Name())
+	err = clusters.WriteAll(file.Name())
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	result, err := ini.Load(file.Name())
 	if err != nil {
 		log.Fatal(err)
 	}
-	printResultFile(file)
+
+	PrintFile(file.Name())
 
 	foundSection, err := result.GetSection(conf[0].Alias)
 	if err != nil {
@@ -101,11 +77,11 @@ func TestWrite(t *testing.T) {
 	assert.ElementsMatch(t, result.SectionStrings(), []string{"DEFAULT", conf[0].Alias, conf[1].Alias})
 	assert.Equal(t, foundRole.Value(), getArn(conf[0].AccountID, conf[0].Role))
 	assert.Equal(t, foundProfile.Value(), viper.GetString("destination"))
-	assert.Equal(t, states[Created], 2)
-	assert.Equal(t, states[Updated], 0)
-	assert.Equal(t, states[Deleted], 0)
+	assert.Equal(t, clusters.states[Created], 2)
+	assert.Equal(t, clusters.states[Updated], 0)
+	assert.Equal(t, clusters.states[Deleted], 0)
 
-	modified := &ConfigCluster{
+	modified := &ClusterConfig{
 		Name:      "changed",
 		Alias:     conf[1].Alias,
 		AccountID: "123",
@@ -114,7 +90,7 @@ func TestWrite(t *testing.T) {
 
 	// we modify a section. the number of sections should not change but the content of the section.
 
-	state, err := Write(modified, file.Name())
+	state, err := modified.Write(file.Name())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -141,7 +117,7 @@ func TestWrite(t *testing.T) {
 	assert.Equal(t, foundProfile.Value(), viper.GetString("destination"))
 	assert.Equal(t, state, Updated)
 
-	printResultFile(file)
+	PrintFile(file.Name())
 }
 
 func getArn(accountId string, role string) string {

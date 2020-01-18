@@ -16,7 +16,7 @@ jobs:
       - run:
           name: test
           command: |
-            go test ./action
+            go test ./action -v
       - run:
           name: cross compile
           command: |
