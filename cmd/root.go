@@ -16,10 +16,15 @@ var (
 	conf *action.Clusters
 )
 
+var (
+	VERSION = "0.1.0"
+)
+
 var rootCmd = &cobra.Command{
-	Use:   "aws-mfa-login",
-	Short: "aws login with mfa",
-	Long:  "CLI tool to update your temporary AWS credentials ",
+	Use:     "aws-mfa-login",
+	Short:   "aws login with mfa",
+	Long:    "CLI tool to update your temporary AWS credentials ",
+	Version: VERSION,
 	Run: func(cmd *cobra.Command, args []string) {
 		action.PrintConfigWithoutClusterConfig()
 		action.UpdateSessionCredentials()
@@ -31,6 +36,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.aws-mfa.yaml)")
 	rootCmd.PersistentFlags().StringVarP(&Name, "source", "s", "", "source profile where mfa is activated")
 	rootCmd.PersistentFlags().StringVarP(&Destination, "destination", "d", "", "destination profile for temporary aws credentials")
+	rootCmd.InitDefaultVersionFlag()
 	err := viper.BindPFlag("source", rootCmd.PersistentFlags().Lookup("source"))
 	if err != nil {
 		log.Fatal(err)

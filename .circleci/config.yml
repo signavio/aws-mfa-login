@@ -12,7 +12,9 @@ jobs:
       - checkout
       - run:
           name: install-tools
-          command: go get -u github.com/mitchellh/gox
+          command: |
+            go get -u github.com/mitchellh/gox
+            go get -u github.com/stevenmatthewt/semantics
       - run:
           name: test
           command: |
@@ -24,7 +26,6 @@ jobs:
       - run:
           name: cross compile
           command: |
-            go get -u github.com/mitchellh/gox
             go get .
             gox -os="linux darwin windows" -arch="amd64" -output="dist/aws-mfa-login_{{.OS}}_{{.Arch}}"
             cd dist/ && gzip *

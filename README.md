@@ -70,6 +70,7 @@ aws-mfa-login completion -h
 In order to increase version your commit message (or squash merge) should start with `major:`, `minor:` or `patch:`.
 See https://github.com/stevenmatthewt/semantics#how-it-works
 The CI will publish artifacts to releases page and increment version.
+Also increase `VERSION` in [root.go](cmd/root.go) matching to your increment string.
 
 ## Install from sources
 
