@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/mitchellh/go-homedir"
 	"github.com/signavio/aws-mfa-login/action"
 	"github.com/spf13/cobra"
@@ -11,13 +10,23 @@ import (
 
 var cfgFile string
 var Name string
+var Destination string
+
+var (
+	conf *action.Clusters
+)
+
+var (
+	VERSION = "0.1.0"
+)
 
 var rootCmd = &cobra.Command{
-	Use:   "aws-mfa-login",
-	Short: "aws login with mfa",
-	Long:  "CLI tool to update your temporary AWS credentials ",
+	Use:     "aws-mfa-login",
+	Short:   "aws login with mfa",
+	Long:    "CLI tool to update your temporary AWS credentials ",
+	Version: VERSION,
 	Run: func(cmd *cobra.Command, args []string) {
-		PrintConfig()
+		action.PrintConfigWithoutClusterConfig()
 		action.UpdateSessionCredentials()
 	},
 }
@@ -25,10 +34,17 @@ var rootCmd = &cobra.Command{
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.aws-mfa.yaml)")
-	rootCmd.Flags().StringVarP(&Name, "source", "s", "", "source profile where mfa is activated")
-	rootCmd.Flags().StringVarP(&Name, "destination", "d", "", "destination profile for temporary aws credentials")
-	viper.BindPFlag("source", rootCmd.Flags().Lookup("source"))
-	viper.BindPFlag("destination", rootCmd.Flags().Lookup("destination"))
+	rootCmd.PersistentFlags().StringVarP(&Name, "source", "s", "", "source profile where mfa is activated")
+	rootCmd.PersistentFlags().StringVarP(&Destination, "destination", "d", "", "destination profile for temporary aws credentials")
+	rootCmd.InitDefaultVersionFlag()
+	err := viper.BindPFlag("source", rootCmd.PersistentFlags().Lookup("source"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = viper.BindPFlag("destination", rootCmd.PersistentFlags().Lookup("destination"))
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func initConfig() {
@@ -47,18 +63,15 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatal(err)
 	}
+	conf = &action.Clusters{}
+	err := viper.Unmarshal(conf)
+	if err != nil {
+		log.Fatalf("unable to decode into config struct, %v", err)
+	}
 }
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func PrintConfig() {
-	fmt.Println("Current Config located in ~/.aws-mfa.yaml\n#####")
-	for _, key := range viper.AllKeys() {
-		fmt.Printf("%v: %v\n", key, viper.Get(key))
-	}
-	fmt.Print("\n")
 }

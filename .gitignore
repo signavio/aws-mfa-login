@@ -13,3 +13,5 @@
 
 .idea
 dist
+
+coverage.txt

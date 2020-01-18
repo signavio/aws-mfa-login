@@ -20,12 +20,20 @@ CLI tool to update your temporary AWS credentials
 
 Usage:
   aws-mfa-login [flags]
+  aws-mfa-login [command]
+
+Available Commands:
+  aws         setup or view your aws config
+  cluster     view or setup your kubeconfig
+  completion  Generates bash completion scripts
+  help        Help about any command
 
 Flags:
       --config string        config file (default is $HOME/.aws-mfa.yaml)
   -d, --destination string   destination profile for temporary aws credentials
   -h, --help                 help for aws-mfa-login
   -s, --source string        source profile where mfa is activated
+      --version              version for aws-mfa-login
 ```
 Create application configuration to `~/.aws-mfa.yaml`.
 ```yaml
@@ -53,6 +61,36 @@ Access will be valid for 11 hours. You can now your profile.
 export AWS_PROFILE=suite-mfa
 ```
 
+## Setup kubernetes access
+you can provide information for static clusters in the yaml see example:
+```yaml
+source: suite
+destination: suite-mfa
+clusters:
+    - name: eks-staging
+      alias: suite-staging
+      accountId: "1234"
+      role: DeveloperAccessRole
+      region: eu-central-1
+    - name: eks-prod
+      alias: suite-academic
+      accountId: "4321"
+      role: DeveloperAccessRole
+      region: eu-central-1
+```
+Then you can setup the assumed roles in your aws config and also update the kubeconfig to access the cluster.
+```bash
+aws-mfa-login aws setup
+> Updated aws credentials in ~/.aws/credentials
+> 2 sections updated and 0 sections created
+
+aws-mfa-login cluster setup
+> Updated context suite-staging in C:\Users\Karl\.kube\config
+
+> you can switch to cluster e.g. with:
+> kubectl config use-context suite-staging
+```
+
 ## Autocompletion
 
 ```console
@@ -70,6 +108,7 @@ aws-mfa-login completion -h
 In order to increase version your commit message (or squash merge) should start with `major:`, `minor:` or `patch:`.
 See https://github.com/stevenmatthewt/semantics#how-it-works
 The CI will publish artifacts to releases page and increment version.
+Also increase `VERSION` in [root.go](cmd/root.go) matching to your increment string.
 
 ## Install from sources
 
