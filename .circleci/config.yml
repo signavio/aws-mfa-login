@@ -16,7 +16,11 @@ jobs:
       - run:
           name: test
           command: |
-            go test ./action -v
+            go test ./action -v -race -coverprofile=coverage.txt -covermode=atomic
+      - run:
+          name: upload code coverage
+          comand: |
+            bash <(curl -s https://codecov.io/bash)
       - run:
           name: cross compile
           command: |
