@@ -4,6 +4,7 @@ It will create or update a destination profile with temporary credentials for `a
 Those credentials will be valid for 12 hours by default.
 
 ## Getting started
+
 Install executable with golang
 ```bash
 go get [-u] github.com/signavio/aws-mfa-login
