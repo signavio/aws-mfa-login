@@ -5,15 +5,35 @@ Those credentials will be valid for 12 hours by default.
 
 ## Getting started
 
+### Install using go...
+
+For this, go must be installed on your system. 
+
 Install executable with golang
 ```bash
-go get [-u] github.com/signavio/aws-mfa-login
+go get github.com/signavio/aws-mfa-login
 ```
-or download from releases
-```yaml
-curl -L https://github.com/signavio/aws-mfa-login/releases/latest/download/aws-mfa-login_linux_amd64.gz -o aws-mfa-login.gz
+.. or update by setting the -u flag: 
+```bash
+go get -u github.com/signavio/aws-mfa-login
+``` 
+
+Make sure your go path is part of your PATH environment variable: 
+```
+export GOPATH="~/go"
+export PATH="${PATH}:${GOPATH}/bin/"
+```
+
+### .. or download from releases
+
+```console
+curl -L https://github.com/signavio/aws-mfa-login/releases/latest/download/aws-mfa-login_$(uname)_amd64.gz -o aws-mfa-login.gz
 gunzip aws-mfa-login.gz && chmod +x aws-mfa-login && sudo mv aws-mfa-login /usr/local/bin/aws-mfa-login
 ```
+
+### Post-install
+
+Check your installation - this should work now: 
 
 ```console
 $ aws-mfa-login -h
