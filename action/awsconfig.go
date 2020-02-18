@@ -113,7 +113,7 @@ func getAwsConfigFilePath() string {
 }
 
 func PrintConfigWithoutClusterConfig() {
-	fmt.Println("Current Config located in ~/.aws-mfa.yaml\n#####")
+	fmt.Println("Current configuration located in ~/.aws-mfa.yaml\n#####")
 	for _, key := range viper.AllKeys() {
 		if key != "clusters" {
 			fmt.Printf("%v: %v\n", key, viper.Get(key))

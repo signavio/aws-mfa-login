@@ -125,8 +125,8 @@ func (updater *CredUpdater) updateAwsConfig(token *sts.GetSessionTokenOutput) {
 	expires := int(token.Credentials.Expiration.Sub(time.Now()).Hours())
 
 	fmt.Printf(`
-Sucessfully update access tokens for profile %s.
-Access will be valid for %d hours. You can now your profile.
+Successfully updated access tokens for profile %s.
+Access will be valid for %d hours. You can now use that profile.
 
 export AWS_PROFILE=%s
 
