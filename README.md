@@ -56,19 +56,24 @@ Flags:
   -s, --source string        source profile where mfa is activated
       --version              version for aws-mfa-login
 ```
-Create application configuration to `~/.aws-mfa.yaml`.
+Create your application configuration and save it to `~/.aws-mfa.yaml` :
 ```yaml
 source: some-source-profile
 destination: some-destination-profile
 ```
 `Source` is source profile where MFA is already activated and the key and secret id is configured.
 The tool will create a new profile entry if `destination` profile does not exist yet or update accordingly.
-Run tool to update session token in your local aws credentials.
+Run the tool to update the session token in your local aws credentials.
 
+For example, for `~/.aws-mfa.yaml` with content
+```yaml
+source: suite
+destination: suite-mfa
+```
+... the output may be: 
 ```console
 $ aws-mfa-login 
-located config file on 
-Current Config located in ~/.aws-mfa.yaml
+Current configuration located in ~/.aws-mfa.yaml
 #####
 source: suite
 destination: suite-mfa
@@ -76,8 +81,8 @@ destination: suite-mfa
 detected MFA device with serial number arn:aws:iam::123456:mfa/username
 enter 6-digit MFA code: 123456
 
-Sucessfully update access tokens for profile suite-mfa.
-Access will be valid for 11 hours. You can now your profile.
+Successfully updated access tokens for profile suite-mfa.
+Access will be valid for 11 hours. You can now use that profile.
 
 export AWS_PROFILE=suite-mfa
 ```
