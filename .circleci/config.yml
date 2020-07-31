@@ -27,7 +27,15 @@ jobs:
           name: cross compile
           command: |
             go get .
-            gox -os="linux darwin windows" -arch="amd64" -output="dist/aws-mfa-login_{{.OS}}_{{.Arch}}"
+            tag=$(semantics --output-tag --dry-run | sed -e "s/^v//")
+            if [ "$tag" ]; then
+              echo "found release version $tag"
+              gox -ldflags "-X github.com/signavio/aws-mfa-login/cmd.Version=$tag" -os="linux darwin windows" -arch="amd64" -output="dist/aws-mfa-login_{{.OS}}_{{.Arch}}"
+            else
+              echo "no new release detected using git SHA1 ${CIRCLE_BRANCH}-${CIRCLE_SHA1} as version"
+              gox -ldflags "-X github.com/signavio/aws-mfa-login/cmd.Version=${CIRCLE_BRANCH}-${CIRCLE_SHA1}" -os="linux darwin windows" -arch="amd64" -output="dist/aws-mfa-login_{{.OS}}_{{.Arch}}"
+            fi
+            ./dist/aws-mfa-login_linux_amd64 --version
             cd dist/ && gzip *
       - persist_to_workspace:
           root: .
