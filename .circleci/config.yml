@@ -27,7 +27,7 @@ jobs:
           name: cross compile
           command: |
             go get .
-            tag=$(semantics --output-tag --dry-run)
+            tag=$(semantics --output-tag --dry-run | sed -e "s/^v//")
             if [ "$tag" ]; then
               echo "found release version $tag"
               gox -ldflags "-X github.com/signavio/aws-mfa-login/cmd.Version=$tag" -os="linux darwin windows" -arch="amd64" -output="dist/aws-mfa-login_{{.OS}}_{{.Arch}}"
