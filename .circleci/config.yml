@@ -106,9 +106,9 @@ jobs:
 workflows:
   build-publish:
     jobs:
-      - get-version
-      - build:
+      - get-version:
           context: npm-github
+      - build:
           requires:
             - get-version
       - test:
