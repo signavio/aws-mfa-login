@@ -30,7 +30,7 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
+	cobra.OnInitialize(InitConfig)
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.aws-mfa.yaml)")
 	rootCmd.PersistentFlags().StringVarP(&Name, "source", "s", "", "source profile where mfa is activated")
 	rootCmd.PersistentFlags().StringVarP(&Destination, "destination", "d", "", "destination profile for temporary aws credentials")
@@ -48,7 +48,7 @@ func init() {
 	}
 }
 
-func initConfig() {
+func InitConfig() {
 	if cfgFile != "" {
 		viper.SetConfigFile(cfgFile)
 	} else {

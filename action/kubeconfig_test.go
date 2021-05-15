@@ -2,46 +2,87 @@ package action
 
 import (
 	"fmt"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/eks"
+	eksTypes "github.com/aws/aws-sdk-go-v2/service/eks/types"
+	"github.com/mitchellh/go-homedir"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
+	"k8s.io/client-go/tools/clientcmd"
+	"log"
+	"os"
 	"testing"
 )
 
-func TestParseAwsVersion(t *testing.T) {
-
-	var tests = map[string]struct {
-		input       string
-		expected    string
-		errExpected error
-	}{
-		"detect-windows":    {"aws-cli/1.17.0 Python/3.6.0 Windows/10 botocore/1.14.0", "1.17.0", nil},
-		"detect-linux":      {"aws-cli/1.17.1 Python/3.8.1 Linux/4.9.184-linuxkit botocore/1.14.1", "1.17.1", nil},
-		"command-not-found": {"bash: aws: command not found", "", &AwsVersionParseException{}},
-		"wrong-version":     {"aws-cli/1.17 Python/3.8.1 Linux/4.9.184-linuxkit botocore/1.14.1", "", &AwsVersionParseException{}},
+func TestUpdate(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping testing in short mode")
 	}
-	for _, test := range tests {
-		version, err := parseAwsVersion(test.input)
-		assert.IsType(t, test.errExpected, err)
-		assert.Equal(t, test.expected, version)
+	initViper()
+	clusters := &Clusters{}
+	clusters.InitConfig()
+	updater := &KubeConfigUpdater{
+		Profile:  "mfa",
+		Clusters: clusters,
 	}
+	_ = os.Setenv("KUBECONFIG", "/tmp/kubeconfig/kubeconfig")
+	updater.Init()
+	updater.SetupClusters()
+	updater.ListClusters()
 }
 
-func TestCheckRequiredAwsVersion(t *testing.T) {
-	var tests = map[string]struct {
-		input    string
-		expected bool
-		hasError bool
-	}{
-		"success":           {"1.17.0", true, false},
-		"smaller-version":   {"1.16.0", false, true},
-		"no-semver-version": {"1.2", false, true},
+func TestWriteKubconfig(t *testing.T) {
+	_ = os.Setenv("KUBECONFIG", "/tmp/kubeconfig/kubeconfig-test")
+	clusters := []ClusterConfig{
+		{
+			Name:      "cluster1",
+			Alias:     "alias1",
+			AccountID: "12345678",
+			Role:      "Role1",
+			Region:    "eu-central-1",
+		},
+		{
+			Name:      "cluster1",
+			Alias:     "alias2",
+			AccountID: "12345678",
+			Role:      "Role2",
+			Region:    "eu-central-1",
+		},
 	}
-	for _, test := range tests {
-		fmt.Printf("compare %s against %s\n", test.input, RequiredMinAwsVersion)
-		isValid, err := CheckRequiredAwsVersion(test.input)
-		if err != nil {
-			fmt.Println(err)
+	for _, cluster := range clusters {
+		clusterOutput := &eks.DescribeClusterOutput{
+			Cluster: &eksTypes.Cluster{
+				Arn: aws.String(fmt.Sprintf("arn:aws:eks:%s:%s:cluster/%s", cluster.Region, cluster.AccountID, cluster.Name)),
+				CertificateAuthority: &eksTypes.Certificate{
+					// cert-data
+					Data: aws.String("Y2VydC1kYXRhCg=="),
+				},
+				Name:     aws.String(cluster.Name),
+				Endpoint: aws.String("https://123456789.gr7.eu-central-1.eks.amazonaws.com"),
+			},
 		}
-		assert.Equal(t, test.expected, isValid)
-		assert.Equal(t, test.hasError, err != nil)
+		cluster.writeKubeconfig(clusterOutput)
+	}
+
+	kubeConfigPath, _ := findKubeConfig()
+	kubeConfig, err := clientcmd.LoadFromFile(kubeConfigPath)
+
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(kubeConfig.Clusters), "Expecting only one cluster")
+	assert.Equal(t, 2, len(kubeConfig.AuthInfos), "Expecting two different users")
+	assert.Equal(t, 2, len(kubeConfig.Contexts), "Expecting two different contexts")
+
+}
+
+func initViper() {
+	home, err := homedir.Dir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	viper.AddConfigPath(home)
+	viper.SetConfigName(".aws-mfa")
+	viper.AutomaticEnv()
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatal(err)
 	}
 }
