@@ -20,7 +20,9 @@ var clusterSetupCommand = &cobra.Command{
 	Short: "setup your kubeconfig",
 	Long:  "setup your kubeconfig",
 	Run: func(cmd *cobra.Command, args []string) {
-		action.SetupClusters()
+		updater := &action.KubeConfigUpdater{}
+		updater.Init()
+		updater.SetupClusters()
 	},
 }
 
@@ -29,7 +31,9 @@ var clusterViewCommand = &cobra.Command{
 	Short: "view all cluster names and metadata",
 	Long:  "view all cluster names and metadata",
 	Run: func(cmd *cobra.Command, args []string) {
-		action.ListClusters()
+		updater := &action.KubeConfigUpdater{}
+		updater.Init()
+		updater.ListClusters()
 	},
 }
 

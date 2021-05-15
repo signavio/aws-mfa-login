@@ -65,24 +65,24 @@ func (clusters *Clusters) WriteAll(filePath string) error {
 	return nil
 }
 
-func (clusterConfig *ClusterConfig) Write(filePath string) (State, error) {
+func (c *ClusterConfig) Write(filePath string) (State, error) {
 	file, err := ini.Load(filePath)
 	if err != nil {
 		return Error, err
 	}
 	state := Error
-	_, err = file.GetSection(clusterConfig.Alias)
+	_, err = file.GetSection(c.Alias)
 	if err == nil {
 		state = Updated
 	} else {
 		state = Created
 	}
-	section, err := file.NewSection(clusterConfig.Alias)
+	section, err := file.NewSection(c.Alias)
 	if err != nil {
 		return Error, err
 	}
 
-	arn := fmt.Sprintf("arn:aws:iam::%s:role/%s", clusterConfig.AccountID, clusterConfig.Role)
+	arn := fmt.Sprintf("arn:aws:iam::%s:role/%s", c.AccountID, c.Role)
 	_, err = section.NewKey("role_arn", arn)
 	if err != nil {
 		return Error, err

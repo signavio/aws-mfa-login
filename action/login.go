@@ -2,12 +2,12 @@ package action
 
 import (
 	"bufio"
+	"context"
 	"fmt"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/iam"
-	"github.com/aws/aws-sdk-go/service/sts"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/iam"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/go-ini/ini"
 	"github.com/spf13/viper"
 	"log"
@@ -19,8 +19,8 @@ import (
 type CredUpdater struct {
 	sourceProfile      string
 	destinationProfile string
-	iamClient          *iam.IAM
-	stsClient          *sts.STS
+	iamClient          *iam.Client
+	stsClient          *sts.Client
 }
 
 func UpdateSessionCredentials() {
@@ -37,19 +37,20 @@ func UpdateSessionCredentials() {
 }
 
 func (updater *CredUpdater) init() {
-	config := &aws.Config{
-		Credentials: credentials.NewSharedCredentials("", updater.sourceProfile),
-	}
-	session, err := session.NewSession(config)
+	cfg, err := config.LoadDefaultConfig(
+		context.TODO(),
+		config.WithSharedConfigProfile(updater.sourceProfile),
+		//config.WithRegion("eu-central-1"),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
-	updater.iamClient = iam.New(session)
-	updater.stsClient = sts.New(session)
+	updater.iamClient = iam.NewFromConfig(cfg)
+	updater.stsClient = sts.NewFromConfig(cfg)
 }
 
 func (updater *CredUpdater) getUsername() string {
-	callerOutput, err := updater.stsClient.GetCallerIdentity(&sts.GetCallerIdentityInput{})
+	callerOutput, err := updater.stsClient.GetCallerIdentity(context.TODO(), &sts.GetCallerIdentityInput{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -63,7 +64,7 @@ func (updater *CredUpdater) getUsername() string {
 func (updater *CredUpdater) getMfaSerial(username string) string {
 	var mfaId string
 	deviceInput := &iam.ListMFADevicesInput{UserName: aws.String(username)}
-	devices, err := updater.iamClient.ListMFADevices(deviceInput)
+	devices, err := updater.iamClient.ListMFADevices(context.TODO(), deviceInput)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -92,7 +93,7 @@ func (updater *CredUpdater) getSessionToken(serial string, code string) *sts.Get
 		SerialNumber:    &serial,
 		TokenCode:       &code,
 	}
-	token, err := updater.stsClient.GetSessionToken(tokenInput)
+	token, err := updater.stsClient.GetSessionToken(context.TODO(), tokenInput)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -113,9 +114,9 @@ func (updater *CredUpdater) updateAwsConfig(token *sts.GetSessionTokenOutput) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	section.NewKey("aws_access_key_id", *token.Credentials.AccessKeyId)
-	section.NewKey("aws_secret_access_key", *token.Credentials.SecretAccessKey)
-	section.NewKey("aws_session_token", *token.Credentials.SessionToken)
+	_, _ = section.NewKey("aws_access_key_id", *token.Credentials.AccessKeyId)
+	_, _ = section.NewKey("aws_secret_access_key", *token.Credentials.SecretAccessKey)
+	_, _ = section.NewKey("aws_session_token", *token.Credentials.SessionToken)
 
 	err = awsFile.SaveTo(awsFilePath)
 	if err != nil {
