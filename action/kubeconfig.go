@@ -17,7 +17,6 @@ import (
 	eksTypes "github.com/aws/aws-sdk-go-v2/service/eks/types"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/aws/smithy-go"
-	"github.com/fatih/color"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 	"k8s.io/client-go/tools/clientcmd"
@@ -82,15 +81,18 @@ func (c *ClusterConfig) List(stsClient *sts.Client) {
 func (c *ClusterConfig) writeKubeconfig(clusterInfo *eks.DescribeClusterOutput) {
 	kubeConfigPath, err := findKubeConfig()
 	if err != nil {
-		log.Fatal(err)
+		PrintError("Failed to detect kubeconfig %s\n", err.Error())
+		return
 	}
 	err = createFileIfNotExist(kubeConfigPath)
 	if err != nil {
-		log.Fatal(err)
+		PrintError("Could not create initial kubeconfig file %s\n", err.Error())
+		return
 	}
 	kubeConfig, err := clientcmd.LoadFromFile(kubeConfigPath)
 	if err != nil {
-		log.Fatal("failed to load", err)
+		PrintError("Failed to unmarshall existing kubeconfig %s\n", err.Error())
+		return
 	}
 
 	clusterArn := aws.ToString(clusterInfo.Cluster.Arn)
@@ -133,32 +135,31 @@ func (c *ClusterConfig) writeKubeconfig(clusterInfo *eks.DescribeClusterOutput) 
 	configAccess.ExplicitPath = kubeConfigPath
 	err = clientcmd.ModifyConfig(configAccess, *kubeConfig, true)
 	if err != nil {
-		log.Fatal("Could not modify kubeconfig: ", err)
+		PrintError("Failed to write kubeconfig %s\n", err.Error())
+		return
 	}
 }
 
 func (updater *KubeConfigUpdater) SetupClusters() {
-	warn := color.New(color.FgYellow)
-	success := color.New(color.FgGreen)
-	errorMsg := color.New(color.FgGreen)
+
 	for _, cluster := range updater.Clusters.ClusterConfigs {
 		clusterInfo, err := cluster.getCluster(updater.stsClient)
 		if err != nil {
 			var notFound *eksTypes.ResourceNotFoundException
 			var accessDenied *smithy.OperationError
 			if errors.As(err, &notFound) {
-				_, _ = warn.Printf("Skipping setup for cluster %s %s\n", cluster.Name, aws.ToString(notFound.Message))
+				PrintWarn("Skipping setup for cluster %s %s\n", cluster.Name, aws.ToString(notFound.Message))
 				continue
 			}
 			if errors.As(err, &accessDenied) {
-				_, _ = warn.Printf("Skipping setup for cluster %s beecause not authorized\n", cluster.Name)
+				PrintWarn("Skipping setup for cluster %s because not authorized\n", cluster.Name)
 				continue
 			}
-			_, _ = errorMsg.Printf("Skipping setup for cluster %s %s\n", cluster.Name, err.Error())
+			PrintError("Skipping setup for cluster %s %s\n", cluster.Name, err.Error())
 			continue
 		}
 		cluster.writeKubeconfig(clusterInfo)
-		_, _ = success.Printf("Successfully setup kubeconfig for cluster %s\n", cluster.Name)
+		PrintSuccess("Successfully setup kubeconfig for cluster %s\n", cluster.Name)
 	}
 }
 
