@@ -3,10 +3,15 @@ package action
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/fatih/color"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+)
+
+var (
+	DisableColors bool
 )
 
 func PrintFile(filePath string) {
@@ -62,4 +67,22 @@ func createFileIfNotExist(path string) error {
 		}
 	}
 	return nil
+}
+
+func printColorized(message string, colorAttr color.Attribute, args ...interface{}) {
+	color.NoColor = DisableColors
+	color.Set(colorAttr)
+	defer color.Unset()
+	fmt.Printf(message, args...)
+}
+
+func PrintWarn(message string, args ...interface{}) {
+	printColorized(message, color.FgYellow, args...)
+}
+
+func PrintError(message string, args ...interface{}) {
+	printColorized(message, color.FgRed, args...)
+}
+func PrintSuccess(message string, args ...interface{}) {
+	printColorized(message, color.FgGreen, args...)
 }
