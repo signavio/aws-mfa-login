@@ -5,7 +5,7 @@ Those credentials will be valid for 12 hours by default.
 
 ## Getting started
 
-### Install using go...
+### Install using go
 
 For this, go must be installed on your system. 
 
@@ -13,18 +13,13 @@ Install executable with golang
 ```bash
 go get github.com/signavio/aws-mfa-login
 ```
-.. or update by setting the -u flag: 
-```bash
-go get -u github.com/signavio/aws-mfa-login
-``` 
-
 Make sure your go path is part of your PATH environment variable: 
 ```
 export GOPATH="~/go"
 export PATH="${PATH}:${GOPATH}/bin/"
 ```
 
-### .. or download from releases
+### Install from binary (Recommended)
 
 ```console
 curl -L https://github.com/signavio/aws-mfa-login/releases/latest/download/aws-mfa-login_$(uname)_amd64.gz -o aws-mfa-login.gz
@@ -53,6 +48,7 @@ Flags:
       --config string        config file (default is $HOME/.aws-mfa.yaml)
   -d, --destination string   destination profile for temporary aws credentials
   -h, --help                 help for aws-mfa-login
+      --no-color             disable colorized output
   -s, --source string        source profile where mfa is activated
       --version              version for aws-mfa-login
 ```
@@ -88,6 +84,14 @@ export AWS_PROFILE=suite-mfa
 ```
 
 ## Setup kubernetes access
+
+This function can be useful when:
+* you have setup the recommended role structure of AWS you have an IAM Account that contains the AWS users
+* those users assume roles in target account like where the eks cluster lives
+* you map roles to RBAC users
+
+![Roles Structure](images/roles.jpg "Roles-Structure")
+
 you can provide information for static clusters in the yaml see example:
 ```yaml
 source: suite
@@ -104,43 +108,98 @@ clusters:
       role: DeveloperAccessRole
       region: eu-central-1
 ```
-Then you can setup the assumed roles in your aws config and also update the kubeconfig to access the cluster.
+This will create aws profiles for each cluster and reference the profile in the kubeconfig.
+Cluster where you don't have access to or that don't exist, will be skipped.
 ```bash
-aws-mfa-login aws setup
-> Updated aws credentials in ~/.aws/credentials
-> 2 sections updated and 0 sections created
+$ aws-mfa-login aws setup
+Updated aws credentials in ~/.aws/credentials
+2 sections updated and 0 sections created
 
-aws-mfa-login cluster setup
-> Updated context suite-staging in C:\Users\Karl\.kube\config
+$ aws-mfa-login cluster setup
+Successfully setup kubeconfig for cluster karl-default
+Successfully setup kubeconfig for cluster staging-uk-default
+Skipping setup for cluster suite-staging No cluster found for name: suite-staging.
+Skipping setup for cluster eks-prod-eu because not authorized
 
-> you can switch to cluster e.g. with:
-> kubectl config use-context suite-staging
+You can now switch the context. Kubectx is recommenend, although it's also possible with plain kubectl.
+kubectx suite-dev-cf
+kubectl config use-context suite-dev-cf
+
 ```
 
 ## Autocompletion
 
-```console
-aws-mfa-login completion -h
-> To enable autocompletion one-time run
-> source <(aws-mfa-login completion)
-> To enable autocompletion for all terminal sessions add this your bashrc
-> # ~/.bashrc or ~/.profile
-> source <(aws-mfa-login completion)
+Refer to Cobra [Autocompletion](https://github.com/spf13/cobra/blob/master/shell_completions.md)
+
+```bash
+aws-mfa-login completion --help
+
+To load completions:
+
+Bash:
+
+  $ source <(yourprogram completion bash)
+
+  # To load completions for each session, execute once:
+  # Linux:
+  $ aws-mfa-login completion bash > /etc/bash_completion.d/aws-mfa-login
+  # macOS:
+  $ aws-mfa-login completion bash > /usr/local/etc/bash_completion.d/aws-mfa-login
+
+Zsh:
+
+  # If shell completion is not already enabled in your environment,
+  # you will need to enable it.  You can execute the following once:
+
+  $ echo "autoload -U compinit; compinit" >> ~/.zshrc
+
+  # To load completions for each session, execute once:
+  $ aws-mfa-login completion zsh > ~/.oh-my-zsh/completions/_aws-mfa-login
+  
+  # verify that ~/.oh-my-zsh/completions is in your fpath
+  $ print -l $fpath 
+
+  # You will need to start a new shell for this setup to take effect.
+
+fish:
+
+  $ aws-mfa-login completion fish | source
+
+  # To load completions for each session, execute once:
+  $ aws-mfa-login completion fish > ~/.config/fish/completions/aws-mfa-login.fish
+
+PowerShell:
+
+  PS> aws-mfa-login completion powershell | Out-String | Invoke-Expression
+
+  # To load completions for every new session, run:
+  PS> aws-mfa-login completion powershell > aws-mfa-login.ps1
+  # and source this file from your PowerShell profile.
+
+Usage:
+  aws-mfa-login completion [bash|zsh|fish|powershell]
+
 ```
 
 # Development
 
 ## Versioning
-In order to increase version your commit message (or squash merge) should start with `major:`, `minor:` or `patch:`.
-See https://github.com/stevenmatthewt/semantics#how-it-works
-The CI will publish artifacts to releases page and increment version.
-Also increase `VERSION` in [root.go](cmd/root.go) matching to your increment string.
+Use [Conventional Commit Messages](https://www.conventionalcommits.org/en/v1.0.0/).
+[Semantic Release](https://github.com/semantic-release/semantic-release) will release a new version with changelog.
 
-## Install from sources
+examples:
+``` 
+# increase patch version
+fix: fixing tests
 
-```console
-export GO111MODULE=on
-go build .
-go install .
-aws-mfa-login
+# incease minor version
+feat: add configuration
+
+# increase major version:
+BREAKING CHANGE: increase major version of rds
+
+# update docu
+docs: update readme
 ```
+
+
