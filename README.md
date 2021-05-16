@@ -22,7 +22,7 @@ export PATH="${PATH}:${GOPATH}/bin/"
 ### Install from binary (Recommended)
 
 ```console
-curl -L https://github.com/signavio/aws-mfa-login/releases/latest/download/aws-mfa-login_$(uname)_amd64.gz -o aws-mfa-login.gz
+curl -L "https://github.com/signavio/aws-mfa-login/releases/latest/download/aws-mfa-login_$(uname)_amd64.gz" -o aws-mfa-login.gz
 gunzip aws-mfa-login.gz && chmod +x aws-mfa-login && sudo mv aws-mfa-login /usr/local/bin/aws-mfa-login
 ```
 
