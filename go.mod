@@ -14,10 +14,8 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-ini/ini v1.46.0
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337 // indirect
-	github.com/spf13/cobra v0.0.5
-	github.com/spf13/viper v1.4.0
+	github.com/spf13/cobra v1.1.3
+	github.com/spf13/viper v1.7.0
 	github.com/stretchr/testify v1.6.1
-	gopkg.in/ini.v1 v1.46.0 // indirect
 	k8s.io/client-go v0.20.4
 )
