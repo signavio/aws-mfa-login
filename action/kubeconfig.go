@@ -160,6 +160,14 @@ func (updater *KubeConfigUpdater) SetupClusters() {
 		}
 		cluster.writeKubeconfig(clusterInfo)
 		PrintSuccess("Successfully setup kubeconfig for cluster %s\n", cluster.Name)
+
+	}
+	if len(updater.Clusters.ClusterConfigs) >= 1 {
+		fmt.Printf("\nYou can now switch the context. Kubectx is recommenend, "+
+			"although it's also possible with plain kubectl.\n"+
+			"kubectx %s\nkubectl config use-context %s\n",
+			updater.Clusters.ClusterConfigs[0].Alias,
+			updater.Clusters.ClusterConfigs[0].Alias)
 	}
 }
 
