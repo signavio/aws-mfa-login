@@ -1,5 +1,6 @@
 {
   "extends": [
-    "config:base"
+    "github>karlderkaefer/renovate-config:golang",
+    "schedule:monthly"
   ]
 }
