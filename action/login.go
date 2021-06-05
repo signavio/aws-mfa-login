@@ -40,7 +40,7 @@ func (updater *CredUpdater) init() {
 	cfg, err := config.LoadDefaultConfig(
 		context.TODO(),
 		config.WithSharedConfigProfile(updater.sourceProfile),
-		//config.WithRegion("eu-central-1"),
+		config.WithRegion("eu-central-1"),
 	)
 	if err != nil {
 		log.Fatal(err)
