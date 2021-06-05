@@ -1,3 +1,10 @@
+## [0.1.7](https://github.com/signavio/aws-mfa-login/compare/v0.1.6...v0.1.7) (2021-06-05)
+
+
+### Bug Fixes
+
+* add default region for login ([3b6cf98](https://github.com/signavio/aws-mfa-login/commit/3b6cf980f6ee1aaa5008fc0dd379eeb8ee850998)), closes [#16](https://github.com/signavio/aws-mfa-login/issues/16)
+
 ## [0.1.6](https://github.com/signavio/aws-mfa-login/compare/v0.1.5...v0.1.6) (2021-06-01)
 
 
