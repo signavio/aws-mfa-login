@@ -2,13 +2,14 @@ package action
 
 import (
 	"fmt"
-	"github.com/go-ini/ini"
-	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"log"
 	"os"
 	"testing"
+
+	"github.com/go-ini/ini"
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestWrite(t *testing.T) {
@@ -24,6 +25,13 @@ func TestWrite(t *testing.T) {
 			Alias:     "testalias2",
 			AccountID: "123456",
 			Role:      "admin",
+		},
+		{
+			Name:        "testname3",
+			Alias:       "testalias2",
+			AccountID:   "123456",
+			Role:        "admin",
+			Destination: "altProfile",
 		},
 	}
 	viper.Set("clusters", conf)

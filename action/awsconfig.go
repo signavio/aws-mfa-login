@@ -90,16 +90,13 @@ func (c *ClusterConfig) Write(filePath string) (State, error) {
 		return Error, err
 	}
 
+	destinationProfile := viper.GetString("destination")
 	if c.Destination != "" {
-		_, err = section.NewKey("source_profile", c.Destination)
-		if err != nil {
-			return Error, err
-		}
-	} else {
-		_, err = section.NewKey("source_profile", viper.GetString("destination"))
-		if err != nil {
-			return Error, err
-		}
+		destinationProfile = c.Destination
+	}
+	_, err = section.NewKey("source_profile", destinationProfile)
+	if err != nil {
+		return Error, err
 	}
 
 	return state, file.SaveTo(filePath)
