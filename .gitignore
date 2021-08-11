@@ -16,3 +16,6 @@ dist
 
 coverage.txt
 node_modules
+
+# ignore the executable
+aws-mfa-login

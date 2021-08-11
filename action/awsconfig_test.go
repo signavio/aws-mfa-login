@@ -80,12 +80,16 @@ func TestWrite(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	foundDestination, err := foundSection.getKey("destination")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// one section DEFAULT will be added by default
 	assert.ElementsMatch(t, result.SectionStrings(), []string{"DEFAULT", conf[0].Alias, conf[1].Alias})
 	assert.Equal(t, foundRole.Value(), getArn(conf[0].AccountID, conf[0].Role))
 	assert.Equal(t, foundProfile.Value(), viper.GetString("destination"))
-	assert.Equal(t, clusters.states[Created], 2)
+	assert.Equal(t, clusters.states[Created], 3)
 	assert.Equal(t, clusters.states[Updated], 0)
 	assert.Equal(t, clusters.states[Deleted], 0)
 
