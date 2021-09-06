@@ -18,6 +18,15 @@ Make sure your go path is part of your PATH environment variable:
 export GOPATH="~/go"
 export PATH="${PATH}:${GOPATH}/bin/"
 ```
+If you get an error message:
+```
+cannot find package "github.com/hashicorp/hcl/hcl/printer" in any of:
+```
+run
+```
+export GO111MODULE=on
+```
+before installing `aws-mfa-login`
 
 ### Install from binary (Recommended)
 
