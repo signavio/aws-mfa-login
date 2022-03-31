@@ -1,3 +1,10 @@
+## [0.1.9](https://github.com/signavio/aws-mfa-login/compare/v0.1.8...v0.1.9) (2022-03-31)
+
+
+### Bug Fixes
+
+* support ARM64 architecture for linux and mac ([3583c73](https://github.com/signavio/aws-mfa-login/commit/3583c73a5123a7998821c17bc3154c9e2701590d)), closes [#46](https://github.com/signavio/aws-mfa-login/issues/46)
+
 ## [0.1.8](https://github.com/signavio/aws-mfa-login/compare/v0.1.7...v0.1.8) (2022-02-26)
 
 
