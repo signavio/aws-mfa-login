@@ -2,11 +2,12 @@ package action
 
 import (
 	"fmt"
+	"log"
+	"os"
+
 	"github.com/ghodss/yaml"
 	"github.com/go-ini/ini"
 	"github.com/spf13/viper"
-	"log"
-	"os"
 )
 
 type State int
@@ -24,11 +25,12 @@ type Clusters struct {
 }
 
 type ClusterConfig struct {
-	Name      string `yaml:"name"`
-	Alias     string `yaml:"alias"`
-	AccountID string `yaml:"accountId"`
-	Role      string `yaml:"role"`
-	Region    string `yaml:"region"`
+	Name        string `yaml:"name"`
+	Alias       string `yaml:"alias"`
+	AccountID   string `yaml:"accountId"`
+	Role        string `yaml:"role"`
+	Region      string `yaml:"region"`
+	Destination string `yaml:"destination"`
 }
 
 func (clusters *Clusters) InitConfig() {
@@ -87,7 +89,12 @@ func (c *ClusterConfig) Write(filePath string) (State, error) {
 	if err != nil {
 		return Error, err
 	}
-	_, err = section.NewKey("source_profile", viper.GetString("destination"))
+
+	destinationProfile := viper.GetString("destination")
+	if c.Destination != "" {
+		destinationProfile = c.Destination
+	}
+	_, err = section.NewKey("source_profile", destinationProfile)
 	if err != nil {
 		return Error, err
 	}

@@ -2,13 +2,14 @@ package action
 
 import (
 	"fmt"
-	"github.com/go-ini/ini"
-	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"log"
 	"os"
 	"testing"
+
+	"github.com/go-ini/ini"
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestWrite(t *testing.T) {
@@ -24,6 +25,13 @@ func TestWrite(t *testing.T) {
 			Alias:     "testalias2",
 			AccountID: "123456",
 			Role:      "admin",
+		},
+		{
+			Name:        "testname3",
+			Alias:       "testalias3",
+			AccountID:   "123456",
+			Role:        "admin",
+			Destination: "altProfile",
 		},
 	}
 	viper.Set("clusters", conf)
@@ -74,12 +82,24 @@ func TestWrite(t *testing.T) {
 	}
 
 	// one section DEFAULT will be added by default
-	assert.ElementsMatch(t, result.SectionStrings(), []string{"DEFAULT", conf[0].Alias, conf[1].Alias})
+	assert.ElementsMatch(t, result.SectionStrings(), []string{"DEFAULT", conf[0].Alias, conf[1].Alias, conf[2].Alias})
 	assert.Equal(t, foundRole.Value(), getArn(conf[0].AccountID, conf[0].Role))
 	assert.Equal(t, foundProfile.Value(), viper.GetString("destination"))
-	assert.Equal(t, clusters.states[Created], 2)
-	assert.Equal(t, clusters.states[Updated], 0)
-	assert.Equal(t, clusters.states[Deleted], 0)
+	assert.Equal(t, 3, clusters.states[Created], "Expected 3 cluster to be created")
+	assert.Equal(t, 0, clusters.states[Updated], "Expected no cluster to be updated")
+	assert.Equal(t, 0, clusters.states[Deleted], "Expected no cluster to be deleted")
+
+	foundSectionDestinationModified, err := result.GetSection(conf[2].Alias)
+	if err != nil {
+		log.Fatal(err)
+	}
+	foundDestination, err := foundSectionDestinationModified.GetKey("source_profile")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	assert.Equal(t, conf[2].Destination, foundDestination.Value(), "expect that destination has been overwritten")
+	assert.NotEqual(t, conf[2].Destination, viper.GetString("destination"), "expect that the profile does no return the default")
 
 	modified := &ClusterConfig{
 		Name:      "changed",
@@ -112,7 +132,7 @@ func TestWrite(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	assert.Len(t, result.SectionStrings(), 3)
+	assert.Len(t, result.SectionStrings(), 4)
 	assert.Equal(t, foundRole.Value(), getArn(modified.AccountID, modified.Role))
 	assert.Equal(t, foundProfile.Value(), viper.GetString("destination"))
 	assert.Equal(t, state, Updated)

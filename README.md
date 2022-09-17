@@ -102,6 +102,7 @@ clusters:
       accountId: "1234"
       role: DeveloperAccessRole
       region: eu-central-1
+      destination: superProfile #overrides default destination
     - name: eks-prod
       alias: suite-academic
       accountId: "4321"
