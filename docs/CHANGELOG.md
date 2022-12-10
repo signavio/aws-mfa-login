@@ -1,3 +1,10 @@
+## [0.1.18](https://github.com/signavio/aws-mfa-login/compare/v0.1.17...v0.1.18) (2022-12-10)
+
+
+### Bug Fixes
+
+* make apiversion compatible with +1.21 clusters ([0337715](https://github.com/signavio/aws-mfa-login/commit/03377151ab096374d8a364a0d029b847118697a4)), closes [#56](https://github.com/signavio/aws-mfa-login/issues/56)
+
 ## [0.1.17](https://github.com/signavio/aws-mfa-login/compare/v0.1.16...v0.1.17) (2022-12-10)
 
 
