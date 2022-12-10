@@ -1,3 +1,11 @@
+## [0.1.16](https://github.com/signavio/aws-mfa-login/compare/v0.1.15...v0.1.16) (2022-12-10)
+
+
+### Bug Fixes
+
+* make cross compile compatible with go 1.19 ([75e19af](https://github.com/signavio/aws-mfa-login/commit/75e19af8fc7e0c6dd3f62add52e639148ed944c2))
+* upgrade to go 1.19 ([7ef69af](https://github.com/signavio/aws-mfa-login/commit/7ef69aff05f4356e27f4ad71895c324023d9a252))
+
 ## [0.1.15](https://github.com/signavio/aws-mfa-login/compare/v0.1.14...v0.1.15) (2022-08-01)
 
 
