@@ -1,9 +1,3 @@
-/**
-I dont like to use system calls.
-But to use whole API, you would need to reimplement complete package to update kubeconfig file
-https://github.com/aws/aws-cli/tree/develop/awscli/customizations/eks
-We can refactor this later with API calls, for now we rely on aws cli implementation.
-*/
 package action
 
 import (
@@ -120,7 +114,7 @@ func (c *ClusterConfig) writeKubeconfig(clusterInfo *eks.DescribeClusterOutput) 
 				Value: c.Alias,
 			},
 		},
-		APIVersion: "client.authentication.k8s.io/v1alpha1",
+		APIVersion: "client.authentication.k8s.io/v1beta1",
 	}
 
 	contextConfig := clientcmdapi.NewContext()
