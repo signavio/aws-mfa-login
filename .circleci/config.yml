@@ -59,6 +59,11 @@ jobs:
   build:
     docker:
       - image: 'cimg/go:1.19'
+    parameters:
+      os:
+        type: string
+      arch:
+        type: string
     steps:
       - checkout
       - attach_workspace:
@@ -68,10 +73,6 @@ jobs:
       - go/mod-download
       - go/save-cache
       - run:
-          name: install-tools
-          command: |
-            go get -u github.com/mitchellh/gox
-      - run:
           name: cross compile
           command: |
             if [ -z "${APP_VERSION}" ]; then
@@ -80,8 +81,17 @@ jobs:
               export VERSION="${APP_VERSION}"
             fi
             echo "got version ${VERSION}"
-            gox -ldflags "-X github.com/signavio/aws-mfa-login/cmd.Version=${VERSION}" -os="linux darwin windows" -arch="amd64 arm64" -output="dist/${CIRCLE_PROJECT_REPONAME}_{{.OS}}_{{.Arch}}"
-            ./dist/${CIRCLE_PROJECT_REPONAME}_linux_amd64 --version
+            export GOOS=<< parameters.os >>
+            export GOARCH=<< parameters.arch >>
+            EXTENSION=""
+            if [ "$GOOS" == "windows" ]; then
+              echo "detected windows, adding .exe"
+              EXTENSION=".exe"
+            fi
+            go build -o "dist/${CIRCLE_PROJECT_REPONAME}_${GOOS}_${GOARCH}" -ldflags "-X github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/cmd.Version=${VERSION}"
+             if [ "$GOOS" == "linux" ] && [ "$GOARCH" == "amd64" ]; then
+               ./dist/${CIRCLE_PROJECT_REPONAME}_${GOOS}_${GOARCH} --version
+            fi
             cd dist/ && gzip *
       - persist_to_workspace:
           name: save distributions
@@ -109,6 +119,10 @@ workflows:
       - get-version:
           context: npm-github
       - build:
+          matrix:
+            parameters:
+              os: [ linux, darwin, windows ]
+              arch: [ amd64, arm64 ]
           requires:
             - get-version
       - test:
@@ -116,8 +130,12 @@ workflows:
             - get-version
       - publish:
           requires:
-            - build
             - test
+            - build-amd64-linux
+            - build-amd64-windows
+            - build-arm64-darwin
+            - build-arm64-linux
+            - build-arm64-windows
           context: npm-github
           filters:
             branches:
