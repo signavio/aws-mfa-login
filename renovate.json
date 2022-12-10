@@ -2,5 +2,10 @@
   "extends": [
     "github>karlderkaefer/renovate-config:golang",
     "schedule:monthly"
-  ]
+  ],
+  "vulnerabilityAlerts": {
+    "labels": ["security"],
+    "automerge": true,
+    "assignees": ["@karlderkaefer"]
+  }
 }
