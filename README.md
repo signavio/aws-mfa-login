@@ -26,6 +26,8 @@ curl -L "https://github.com/signavio/aws-mfa-login/releases/latest/download/aws-
 gunzip aws-mfa-login.gz && chmod +x aws-mfa-login && sudo mv aws-mfa-login /usr/local/bin/aws-mfa-login
 ```
 
+Note: requires kubectl client version **> 1.11** and kubernetes cluster version **>= 1.21**
+
 ### Post-install
 
 Check your installation - this should work now: 
