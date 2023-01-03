@@ -11,7 +11,7 @@ For this, go must be installed on your system.
 
 Install executable with golang
 ```bash
-go get github.com/signavio/aws-mfa-login
+go install github.com/signavio/aws-mfa-login@latest
 ```
 Make sure your go path is part of your PATH environment variable: 
 ```
