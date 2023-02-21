@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"os"
+
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
@@ -15,8 +18,6 @@ import (
 	"github.com/spf13/viper"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
-	"log"
-	"os"
 )
 
 type KubeConfigUpdater struct {
@@ -114,7 +115,7 @@ func (c *ClusterConfig) writeKubeconfig(clusterInfo *eks.DescribeClusterOutput) 
 				Value: c.Alias,
 			},
 		},
-		APIVersion: "client.authentication.k8s.io/v1beta1",
+		APIVersion: "client.authentication.k8s.io/v1",
 	}
 
 	contextConfig := clientcmdapi.NewContext()
