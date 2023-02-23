@@ -1,3 +1,10 @@
+## [0.1.21](https://github.com/signavio/aws-mfa-login/compare/v0.1.20...v0.1.21) (2023-02-23)
+
+
+### Bug Fixes
+
+* **CORE-130:** update authentication.k8s.io beta->v1 ([7c3f85a](https://github.com/signavio/aws-mfa-login/commit/7c3f85a3d45c99e54e750e1a0820644614e0f5b5))
+
 ## [0.1.20](https://github.com/signavio/aws-mfa-login/compare/v0.1.19...v0.1.20) (2023-02-01)
 
 
