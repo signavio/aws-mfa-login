@@ -1,3 +1,10 @@
+## [0.1.22](https://github.com/signavio/aws-mfa-login/compare/v0.1.21...v0.1.22) (2023-02-24)
+
+
+### Reverts
+
+* Revert "fix(CORE-130): update authentication.k8s.io beta->v1" ([7ea3c23](https://github.com/signavio/aws-mfa-login/commit/7ea3c23b7c7913069c49fd6d5bb7acba2a5dbba5))
+
 ## [0.1.21](https://github.com/signavio/aws-mfa-login/compare/v0.1.20...v0.1.21) (2023-02-23)
 
 
