@@ -41,7 +41,7 @@ jobs:
             - .version
   test:
     docker:
-      - image: 'cimg/go:1.23'
+      - image: 'cimg/go:1.24'
     steps:
       - checkout
       - go/load-cache
@@ -58,7 +58,7 @@ jobs:
 
   build:
     docker:
-      - image: 'cimg/go:1.23'
+      - image: 'cimg/go:1.24'
     parameters:
       os:
         type: string
