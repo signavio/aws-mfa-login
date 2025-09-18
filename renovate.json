@@ -5,7 +5,7 @@
   ],
   "vulnerabilityAlerts": {
     "labels": ["security"],
-    "automerge": true,
+    "automerge": false,
     "assignees": ["@karlderkaefer"]
   }
 }
