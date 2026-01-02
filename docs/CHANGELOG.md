@@ -1,3 +1,10 @@
+## [0.1.46](https://github.com/signavio/aws-mfa-login/compare/v0.1.45...v0.1.46) (2026-01-02)
+
+
+### Bug Fixes
+
+* **deps:** update golang dependencies ([8ddfa92](https://github.com/signavio/aws-mfa-login/commit/8ddfa92a8e3505da05398d72476c4b3c2e1c482d))
+
 ## [0.1.45](https://github.com/signavio/aws-mfa-login/compare/v0.1.44...v0.1.45) (2025-04-01)
 
 
