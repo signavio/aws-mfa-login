@@ -2,7 +2,7 @@ module github.com/signavio/aws-mfa-login
 
 go 1.23.0
 
-toolchain go1.25.4
+toolchain go1.25.6
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.41.0
