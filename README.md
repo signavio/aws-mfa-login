@@ -1,6 +1,10 @@
 [![REUSE status](https://api.reuse.software/badge/github.com/signavio/aws-mfa-login)](https://api.reuse.software/info/github.com/signavio/aws-mfa-login)
 
 # aws-mfa-login
+
+> [!WARNING]  
+> Repository is not maintained anymore, this tool will not receive any updates
+
 Small CLI tool to do aws with mfa and update credentials in local aws config.
 It will create or update a destination profile with temporary credentials for `aws_access_key_id`, `aws_secret_access_key` and `aws_session_token`.
 Those credentials will be valid for 12 hours by default.
